@@ -2,7 +2,9 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Response, status, Body
 from LightServer import models
+from LightServer.database import orm
 from LightServer.services.auth import get_current_user
+from LightServer.services.dependencies import get_user_from_id, get_dialog_from_id
 from LightServer.services.dialogs import DialogService
 
 router = APIRouter(
@@ -31,59 +33,56 @@ def add_member(
 
 @router.get("/dialog_members", response_model=List[models.User])
 def get_members(
-        dialog_id: int,
-        user: models.User = Depends(get_current_user),
+        dialog: orm.Dialog = Depends(get_dialog_from_id),
         dialog_service: DialogService = Depends()
 ):
-    return dialog_service.get_members(user, dialog_id)
+    return dialog_service.get_members(dialog=dialog)
 
 
 @router.get("/dialog_messages", response_model=List[models.Message])
 def get_messages(
-        dialog_id: int,
-        user: models.User = Depends(get_current_user),
+        dialog: orm.Dialog = Depends(get_dialog_from_id),
         dialog_service: DialogService = Depends()
 ):
-    return dialog_service.get_messages(user, dialog_id)
+    return dialog_service.get_messages(dialog)
 
 
 @router.post("/add_member", status_code=status.HTTP_201_CREATED)
 def add_member(
-        dialog_id: int = Body(...),
-        another_user_id: int = Body(...),
-        user: models.User = Depends(get_current_user),
+        dialog: orm.Dialog = Depends(get_dialog_from_id),
+        another_user: orm.User = Depends(get_user_from_id),
         dialog_service: DialogService = Depends()
 ):
-    dialog_service.add_member(user, dialog_id, another_user_id)
+    dialog_service.add_member(dialog, another_user)
     return Response(status_code=status.HTTP_201_CREATED)
 
 
 @router.delete("/leave_dialog", status_code=status.HTTP_204_NO_CONTENT)
 def add_member(
-        dialog_id: int = Body(...),
+        dialog: orm.Dialog = Depends(get_dialog_from_id),
         user: models.User = Depends(get_current_user),
         dialog_service: DialogService = Depends()
 ):
-    dialog_service.leave_dialog(user, dialog_id)
+    dialog_service.leave_dialog(user, dialog)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.delete("/remove_member", status_code=status.HTTP_204_NO_CONTENT)
 def add_member(
-        dialog_id: int = Body(...),
-        another_user_id: int = Body(...),
+        dialog: orm.Dialog = Depends(get_dialog_from_id),
+        another_user: orm.User = Depends(get_user_from_id),
         user: models.User = Depends(get_current_user),
         dialog_service: DialogService = Depends()
 ):
-    dialog_service.remove_member_from_dialog(user, dialog_id, another_user_id)
+    dialog_service.remove_member_from_dialog(user, dialog, another_user)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.delete("/delete", status_code=status.HTTP_204_NO_CONTENT)
 def delete_dialog(
-        dialog_id: int = Body(...),
+        dialog: orm.Dialog = Depends(get_dialog_from_id),
         user: models.User = Depends(get_current_user),
         dialog_service: DialogService = Depends()
 ):
-    dialog_service.delete_dialog(user, dialog_id)
+    dialog_service.delete_dialog(user, dialog)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

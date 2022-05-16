@@ -49,6 +49,10 @@ class Dialog(Base):
         session.commit()
         return message
 
+    def add_many_members(self, members_list):
+        [self._session.add(Interlocutor(dialog_id=self.id, member_id=item.id)) for item in members_list]
+        self._session.commit()
+
     def user_is_member(self, member: User, session):
         return True if member.id in [item.member_id for item in self.members(session=session)] else False
 

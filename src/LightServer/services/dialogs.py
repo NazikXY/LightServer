@@ -5,6 +5,7 @@ from fastapi import Depends, exceptions, status
 from LightServer import models
 from LightServer.database import orm
 from LightServer.database.database import get_session, Session
+from LightServer.services.dependencies import get_dialog_from_id, user_is_dialog_owner
 
 
 class DialogService:
@@ -25,19 +26,12 @@ class DialogService:
         )
         return dialogs
 
-    def get_members(self, user, dialog_id):
-        if not self.is_i_dialog_member(user, dialog_id):
-            raise exceptions.HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-
-        interlocutors = self._session.query(orm.Interlocutor).filter(orm.Interlocutor.dialog_id == dialog_id).all()
+    def get_members(self, dialog: orm.Dialog):
+        interlocutors = self._session.query(orm.Interlocutor).filter(orm.Interlocutor.dialog_id == dialog.id).all()
         users = [item.member for item in interlocutors]
         return users
 
-    def get_messages(self, user, dialog_id):
-        if not self.is_i_dialog_member(user, dialog_id):
-            raise exceptions.HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-
-        dialog = self._session.query(orm.Dialog).filter(orm.Dialog.id == dialog_id).first()
+    def get_messages(self, dialog: orm.Dialog):
         messages = dialog.messages(self._session)
         return messages
 
@@ -46,110 +40,43 @@ class DialogService:
         users = self._session.query(orm.User).filter(orm.User.id.in_(member_ids)).all()
 
         if len(users) < len(member_ids):
-            raise exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                           detail="Some of member_id is invalid.")
+            raise exceptions.HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Some of member_id is invalid."
+            )
         self._session.add(dialog)
         dialog.add_member(user, self._session)
 
         if member_ids:
-            self.add_many_members(user, dialog.id, users)
+            dialog.add_many_members(users)
         return dialog
 
-    def add_many_members(self, user: models.User, dialog_id: int, members_list: List[orm.User]):
-        [self._session.add(orm.Interlocutor(dialog_id=dialog_id, member_id=item.id)) for item in members_list]
-        self._session.commit()
+    def add_member(self, dialog: orm.Dialog, another_user: orm.User):
 
-    def is_i_dialog_member(self, user: models.User, dialog_id: int):
-        return True if dialog_id in (item.id for item in self.get_list(user)) else False
-
-    def add_member(self, user: models.User, dialog_id: int, another_user_id: int):
-        dialog: orm.Dialog = (
-            self._session
-                .query(orm.Dialog)
-                .filter(orm.Dialog.id == dialog_id)
-                .first()
-        )
-        if not dialog:
-            raise exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-        is_i_dialog_member = dialog.user_is_member(user, session=self._session)
-
-        if not is_i_dialog_member:
-            raise exceptions.HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-
-        another_user = (
-            self._session
-                .query(orm.User)
-                .filter(orm.User.id == another_user_id)
-                .first()
-        )
-        if not another_user:
-            raise exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-
-        if dialog.user_is_member(member=another_user, session=self._session):
-            raise exceptions.HTTPException(status_code=status.HTTP_409_CONFLICT)
+        if dialog.user_is_member(another_user, session=self._session):
+            raise exceptions.HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This user is already part of this dialog"
+            )
 
         dialog.add_member(member=another_user, session=self._session)
 
-    def leave_dialog(self, user: models.User, dialog_id: int, ):
-        dialog: orm.Dialog = (
-            self._session
-                .query(orm.Dialog)
-                .filter(orm.Dialog.id == dialog_id)
-                .first()
-        )
-        if not dialog:
-            raise exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-
-        is_i_dialog_member = dialog.user_is_member(user, session=self._session)
-        is_i_owner = dialog.initiator_id == user.id
-        if is_i_owner:
-            self.delete_dialog(user, dialog_id)
-
-        if not is_i_dialog_member:
-            raise exceptions.HTTPException(status_code=status.HTTP_409_CONFLICT)
+    def leave_dialog(self, user, dialog: orm.Dialog):
+        if not user_is_dialog_owner(user, dialog):
+            raise exceptions.HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
         dialog.remove_member(user, session=self._session)
 
-    def remove_member_from_dialog(self, user: models.User, dialog_id: int, another_user_id: int):
-        dialog: orm.Dialog = (
-            self._session
-                .query(orm.Dialog)
-                .filter(orm.Dialog.id == dialog_id)
-                .first()
-        )
-
-        if not dialog:
-            raise exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-
-        is_i_owner = dialog.initiator_id == user.id
-
-        if not is_i_owner:
+    def remove_member_from_dialog(self, user: models.User, dialog: orm.Dialog, another_user: orm.User):
+        if not user_is_dialog_owner(user, dialog):
             raise exceptions.HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
-        another_user = (
-            self._session
-                .query(orm.User)
-                .filter(orm.User.id == another_user_id)
-                .first()
-        )
-        if not another_user:
-            raise exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        self.leave_dialog(another_user, dialog)
 
-        self.leave_dialog(another_user, dialog_id)
-
-    def delete_dialog(self, user: models.User, dialog_id: int):
-        dialog: orm.Dialog = (
-            self._session
-                .query(orm.Dialog)
-                .filter(orm.Dialog.id == dialog_id)
-                .first()
-        )
-        if not dialog:
-            raise exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-        is_i_owner = dialog.initiator_id == user.id
-
-        if not is_i_owner:
+    def delete_dialog(self, user: models.User, dialog: orm.Dialog):
+        if not user_is_dialog_owner(user, dialog):
             raise exceptions.HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
         list(map(self._session.delete, dialog.messages(self._session)))
         list(map(self._session.delete, dialog.members(self._session)))
 
