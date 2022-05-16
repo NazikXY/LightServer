@@ -3,8 +3,8 @@ from typing import Optional, List
 
 from pydantic import BaseModel, Field
 
-from LightServer import models
-from LightServer.settings import settings
+from .. import models
+from ..settings import settings
 
 
 class BaseDialog(BaseModel):

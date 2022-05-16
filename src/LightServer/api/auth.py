@@ -1,12 +1,13 @@
 from fastapi import (
     APIRouter,
     Depends,
-    status)
+    status
+)
 
 from fastapi.security import OAuth2PasswordRequestForm
 
-from LightServer import models
-from LightServer.services.auth import AuthService
+from .. import models
+from ..services.auth import AuthService
 
 
 router = APIRouter(

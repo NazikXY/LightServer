@@ -3,9 +3,9 @@ from typing import List
 
 from fastapi import Depends, exceptions, status, Response
 
-from LightServer.database import orm
-from LightServer.database.database import get_session, Session
-from LightServer import models
+from ..database import orm
+from ..database.database import get_session, Session
+from .. import models
 
 
 class FriendsService:

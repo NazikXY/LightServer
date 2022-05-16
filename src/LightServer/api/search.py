@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Body
 
-from LightServer import models
-from LightServer.services.auth import get_current_user
-from LightServer.services.search import SearchService
+from .. import models
+from ..services.auth import get_current_user
+from ..services.search import SearchService
 
 router = APIRouter(
     prefix="/search",

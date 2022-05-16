@@ -2,3 +2,4 @@
 /venv/
 /.idea/
 **/__pycache__/
+**/__main__.py!/src/LightServer/__main__.py

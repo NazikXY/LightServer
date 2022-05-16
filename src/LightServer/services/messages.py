@@ -1,8 +1,8 @@
 from fastapi import Depends, exceptions, status
 
-from LightServer.database import orm
-from LightServer.database.database import Session, get_session
-from LightServer import models
+from ..database import orm
+from ..database.database import Session, get_session
+from .. import models
 
 
 class MessageService:

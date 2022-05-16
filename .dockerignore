@@ -1,0 +1,11 @@
+/src/.env
+/venv/
+/.idea/
+**/__pycache__/
+
+/Dockerfile
+/.dockerignore
+
+/Makefile
+
+/README.md

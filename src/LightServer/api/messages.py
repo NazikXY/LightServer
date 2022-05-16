@@ -6,9 +6,9 @@ from fastapi import (
     Response
 )
 
-from LightServer import models
-from LightServer.services.auth import get_current_user
-from LightServer.services.messages import MessageService
+from .. import models
+from ..services.auth import get_current_user
+from ..services.messages import MessageService
 
 router = APIRouter(
     prefix="/messages",

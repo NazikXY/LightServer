@@ -1,9 +1,9 @@
 from typing import List
 
 from fastapi import APIRouter, Header, Depends, Response, status, Body
-from LightServer import models
-from LightServer.services.auth import get_current_user
-from LightServer.services.friends import FriendsService
+from .. import models
+from ..services.auth import get_current_user
+from ..services.friends import FriendsService
 
 router = APIRouter(
     prefix="/friends",

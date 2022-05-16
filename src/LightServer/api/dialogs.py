@@ -1,11 +1,11 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Response, status, Body
-from LightServer import models
-from LightServer.database import orm
-from LightServer.services.auth import get_current_user
-from LightServer.services.dependencies import get_user_from_id, get_dialog_from_id
-from LightServer.services.dialogs import DialogService
+from .. import models
+from ..database import orm
+from ..services.auth import get_current_user
+from ..services.dependencies import get_user_from_id, get_dialog_from_id
+from ..services.dialogs import DialogService
 
 router = APIRouter(
     prefix="/dialogs",

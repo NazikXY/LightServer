@@ -2,10 +2,10 @@ from typing import List, Optional
 
 from fastapi import Depends, exceptions, status
 
-from LightServer import models
-from LightServer.database import orm
-from LightServer.database.database import get_session, Session
-from LightServer.services.dependencies import get_dialog_from_id, user_is_dialog_owner
+from .. import models
+from ..database import orm
+from ..database.database import get_session, Session
+from ..services.dependencies import get_dialog_from_id, user_is_dialog_owner
 
 
 class DialogService:

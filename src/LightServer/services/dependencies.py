@@ -1,8 +1,8 @@
 from fastapi import Depends, exceptions, status, Body
 
-from LightServer import models, services
-from LightServer.database import orm
-from LightServer.database.database import get_session, Session
+from .. import models, services
+from ..database import orm
+from ..database.database import get_session, Session
 
 
 def get_dialog_from_id(
