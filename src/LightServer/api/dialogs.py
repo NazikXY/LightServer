@@ -24,7 +24,7 @@ async def get_dialogs(
 @router.post("/create", response_model=models.Dialog, status_code=status.HTTP_201_CREATED)
 def add_member(
         new_dialog: models.DialogCreate = Body(...),
-        member_ids: Optional[List[int]] = Body(...),
+        member_ids: Optional[List[int]] = Body([]),
         user: models.User = Depends(get_current_user),
         dialog_service: DialogService = Depends()
 ):
