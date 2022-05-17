@@ -65,7 +65,11 @@ class DialogService:
         if not dialog.user_is_member(user, self._session):
             raise exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                            detail=f"Not found {user.id} user.id in dialog with id {dialog.id} members")
+
         dialog.remove_member(user, session=self._session)
+
+        if not dialog.members(self._session):
+            self.delete_dialog(user, dialog, ignore_owner=True)
 
     def remove_member_from_dialog(self, user: models.User, dialog: orm.Dialog, another_user: orm.User):
         if not user_is_dialog_owner(user, dialog):
@@ -73,8 +77,10 @@ class DialogService:
 
         self.leave_dialog(another_user, dialog)
 
-    def delete_dialog(self, user: models.User, dialog: orm.Dialog):
-        if not user_is_dialog_owner(user, dialog):
+    def delete_dialog(self, user: models.User, dialog: orm.Dialog, ignore_owner=False):
+        if (not user_is_dialog_owner(user, dialog)) and not ignore_owner:
+            # IF USER IS NOT DIALOG OWNER, BUT
+            # IGNORE_OWNER FLAG IS TRUE: EXCEPTION SHOULDN'T BE RAISED
             raise exceptions.HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
         list(map(self._session.delete, dialog.messages(self._session)))
