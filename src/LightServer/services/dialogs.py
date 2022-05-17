@@ -48,7 +48,7 @@ class DialogService:
         dialog.add_member(user, self._session)
 
         if member_ids:
-            dialog.add_many_members(users)
+            dialog.add_many_members(users, self._session)
         return dialog
 
     def add_member(self, dialog: orm.Dialog, another_user: orm.User):
@@ -62,9 +62,9 @@ class DialogService:
         dialog.add_member(member=another_user, session=self._session)
 
     def leave_dialog(self, user, dialog: orm.Dialog):
-        if not user_is_dialog_owner(user, dialog):
-            raise exceptions.HTTPException(status_code=status.HTTP_403_FORBIDDEN)
-
+        if not dialog.user_is_member(user, self._session):
+            raise exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                           detail=f"Not found {user.id} user.id in dialog with id {dialog.id} members")
         dialog.remove_member(user, session=self._session)
 
     def remove_member_from_dialog(self, user: models.User, dialog: orm.Dialog, another_user: orm.User):

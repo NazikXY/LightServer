@@ -29,7 +29,12 @@ class Dialog(Base):
     create_date = Column(DateTime, default=datetime.utcnow())
 
     def remove_member(self, member: User, session):
-        interlocutor = session.query(Interlocutor).filter(Interlocutor.member_id == member.id).first()
+        interlocutor = (
+            session.query(Interlocutor)
+                .filter(Interlocutor.dialog_id == self.id)
+                .filter(Interlocutor.member_id == member.id)
+                .one()
+        )
         session.delete(interlocutor)
         session.commit()
 
@@ -45,9 +50,9 @@ class Dialog(Base):
         session.commit()
         return message
 
-    def add_many_members(self, members_list):
-        [self._session.add(Interlocutor(dialog_id=self.id, member_id=item.id)) for item in members_list]
-        self._session.commit()
+    def add_many_members(self, members_list, session):
+        [session.add(Interlocutor(dialog_id=self.id, member_id=item.id)) for item in members_list]
+        session.commit()
 
     def user_is_member(self, member: User, session):
         return True if member.id in [item.member_id for item in self.members(session=session)] else False
