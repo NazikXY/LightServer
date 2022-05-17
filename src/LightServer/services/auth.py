@@ -85,7 +85,7 @@ class AuthService:
 
     def register_new_user(self, user_data: models.UserCreate):
         new_user = orm.User(
-            login=user_data.login,
+            login=user_data.login.lower(),
             name=user_data.name,
             password_hash=self.hash_password(user_data.password)
         )
