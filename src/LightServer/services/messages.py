@@ -1,5 +1,6 @@
 from fastapi import Depends, exceptions, status
 
+from .dependencies import get_dialog_from_id
 from ..database import orm
 from ..database.database import Session, get_session
 from .. import models
@@ -14,18 +15,7 @@ class MessageService:
         return self._session.query(orm.Message).filter(orm.Message.id == id).first()
 
     def send_message(self, user: models.User, message: models.MessageCreate):
-        dialog: orm.Dialog = (
-            self._session
-            .query(orm.Dialog)
-            .filter(orm.Dialog.id == message.dialog_id)
-            .first()
-        )
-        if not dialog:
-            raise exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-
-        i_member = dialog.user_is_member(user, session=self._session)
-        if not i_member:
-            raise exceptions.HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        dialog: orm.Dialog = get_dialog_from_id(message.dialog_id, user=user, session=self._session)
 
         new_message = dialog.add_message(user, message.text, session=self._session)
         return new_message
@@ -63,12 +53,8 @@ class MessageService:
         if not message:
             raise exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-        dialog: orm.Dialog = (
-            self._session
-                .query(orm.Dialog)
-                .filter(orm.Dialog.id == message.dialog_id)
-                .first()
-        )
+        dialog: orm.Dialog = get_dialog_from_id(dialog_id=message.dialog_id, user=user, session=self._session)
+
         if (user.id != dialog.initiator_id) or (message.author_id != user.id):
             raise exceptions.HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
