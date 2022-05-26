@@ -17,6 +17,9 @@ router = APIRouter(
 def get(
         post: orm.Post = Depends(get_post_from_id)
 ):
+    """
+    Returning post by id.
+    """
     return post
 
 
@@ -25,6 +28,9 @@ def get_my_posts(
         user: models.User = Depends(get_current_user),
         post_service: PostsService = Depends()
 ):
+    """
+    Returning all user posts
+    """
     return post_service.get_user_posts(user=user)
 
 
@@ -34,6 +40,11 @@ def create(
         user: models.User = Depends(get_current_user),
         post_service: PostsService = Depends()
 ):
+    """
+    Creating a new post.
+    Make sure that your post body length is more than 24 symbols.
+    Returning created post.
+    """
     return post_service.create(user=user, new_post=post)
 
 
@@ -45,6 +56,11 @@ def update_post(
         post_service: PostsService = Depends()
 
 ):
+    """
+    Updating existed post.
+    Make sure that your post body length is more than 24 symbols.
+    Returning updated post.
+    """
     return post_service.update(user=user, post=post, new_values=new_values)
 
 
@@ -54,4 +70,7 @@ def delete_post(
         user: models.User = Depends(get_current_user),
         post_service: PostsService = Depends(),
 ):
+    """
+    Deleting post.
+    """
     post_service.delete(user=user, post=post)

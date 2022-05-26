@@ -1,4 +1,4 @@
-from fastapi import Depends, exceptions, status, Body
+from fastapi import Depends, exceptions, status, Body, Query
 
 from .. import models, services
 from ..database import orm
@@ -45,7 +45,7 @@ def user_is_dialog_owner(user: orm.User, dialog: orm.Dialog):
 
 
 def get_post_from_id(
-        post_id: int,
+        post_id: int = Query(..., gt=0),
         session: Session = Depends(get_session)
 ) -> orm.Post:
     post = (
