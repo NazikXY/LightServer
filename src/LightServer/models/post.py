@@ -25,3 +25,6 @@ class Post(BasePost):
     author_id: int = Field(..., gt=0)
     created_time: datetime
     update_time: datetime
+
+    class Config:
+        orm_mode = True

@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, Body
+from fastapi import APIRouter, Depends, Body, status
 from .. import models
 from ..database import orm
 from ..services.auth import get_current_user
@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 
-@router.get("/{post_id}", response_model=models.Post)
+@router.get("", response_model=models.Post)
 def get(
         post: orm.Post = Depends(get_post_from_id)
 ):
@@ -46,3 +46,12 @@ def update_post(
 
 ):
     return post_service.update(user=user, post=post, new_values=new_values)
+
+
+@router.delete("/delete", status_code=status.HTTP_204_NO_CONTENT)
+def delete_post(
+        post: orm.Post = Depends(get_post_from_id),
+        user: models.User = Depends(get_current_user),
+        post_service: PostsService = Depends(),
+):
+    post_service.delete(user=user, post=post)

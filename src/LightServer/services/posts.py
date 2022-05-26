@@ -13,7 +13,7 @@ class PostsService:
         self._session = session
 
     def create(self, user: models.User, new_post: models.PostCreate) -> orm.Post:
-        post = orm.Post(**new_post.dict(), authord_id=user.id)
+        post = orm.Post(**new_post.dict(), author_id=user.id)
         self._session.add(post)
         self._session.commit()
         return post
@@ -24,7 +24,7 @@ class PostsService:
         self._session\
             .query(orm.Post)\
             .filter(orm.Post.id == post.id)\
-            .update(**new_values.dict())
+            .update(new_values.dict())
         self._session.commit()
         return post
 
