@@ -1,8 +1,9 @@
 from datetime import datetime
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, ARRAY
 from sqlalchemy.orm import relationship
 
 from . import Base, MAX_DATA_LENGTH, MESSAGE_MAX_TEXT_LENGTH
+from ..settings import settings
 
 
 class User(Base):
@@ -93,5 +94,22 @@ class Message(Base):
     is_read = Column(Boolean, default=False)
 
     text = Column(String(MESSAGE_MAX_TEXT_LENGTH))
+
+
+class Post(Base):
+    __tablename__ = "posts"
+
+    id = Column(Integer, primary_key=True, unique=True, nullable=False)
+
+    title = Column(String(settings.blog_post_title_length), nullable=False)
+    body_text = Column(String(settings.blog_post_text_length), nullable=False)
+
+    author_id = Column(Integer, ForeignKey(User.id))
+    author = relationship(User, foreign_keys=[author_id])
+
+    created_time = Column(DateTime, default=datetime.utcnow())
+    update_time = Column(DateTime, default=datetime.utcnow(), onupdate=datetime.utcnow())
+
+    # media_files = Column(ARRAY(str)) This feature will be added later
 
 

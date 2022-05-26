@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     max_message_length = 65535
     max_title_length = 24
 
+    blog_post_title_length = 40
+    blog_post_text_length = 10000
+
+
     class Config:
         env_file = '.env'
 
