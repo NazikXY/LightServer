@@ -102,7 +102,7 @@ class Post(Base):
     id = Column(Integer, primary_key=True, unique=True, nullable=False)
 
     title = Column(String(settings.blog_post_title_length), nullable=False)
-    body_text = Column(String(settings.blog_post_text_length), nullable=False)
+    body_text = Column(String(settings.blog_post_text_max_length), nullable=False)
 
     author_id = Column(Integer, ForeignKey(User.id))
     author = relationship(User, foreign_keys=[author_id])

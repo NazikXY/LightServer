@@ -6,6 +6,7 @@ from . import (
     friends,
     dialogs,
     messages,
+    posts,
 )
 
 
@@ -15,4 +16,5 @@ router.include_router(search.router)
 router.include_router(friends.router)
 router.include_router(dialogs.router)
 router.include_router(messages.router)
+router.include_router(posts.router)
 

@@ -42,3 +42,18 @@ def get_user_from_id(
 
 def user_is_dialog_owner(user: orm.User, dialog: orm.Dialog):
     return dialog.initiator_id == user.id
+
+
+def get_post_from_id(
+        post_id: int,
+        session: Session = Depends(get_session)
+) -> orm.Post:
+    post = (
+        session
+            .query(orm.Post)
+            .filter(orm.Post.id == post_id)
+            .first()
+    )
+    if not post:
+        raise exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return post

@@ -16,3 +16,8 @@ from .messages import (
     MessageForward
 )
 
+from .post import (
+    Post,
+    PostCreate,
+)
+
