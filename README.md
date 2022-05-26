@@ -8,6 +8,8 @@
   <li>FastApi</li>
   <li>SqlAlchemy</li>
   <li>Pydantic</li>
+  <li>Alembic</li>
+  <li>Celery</li>
 </ul>
 <i>In this project, I am attempting to implement a microservice architecture as I understand this pattern</i>.
 <br>
