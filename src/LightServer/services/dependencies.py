@@ -1,3 +1,4 @@
+
 from fastapi import Depends, exceptions, status, Body, Query
 
 from .. import models, services
@@ -36,7 +37,7 @@ def get_user_from_id(
             .first()
     )
     if not user:
-        exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return user
 
 
