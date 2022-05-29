@@ -1,6 +1,8 @@
+from typing import List
 
 from fastapi import Depends, exceptions, status, Body, Query
 
+from .tags import TagsService
 from .. import models, services
 from ..database import orm
 from ..database.database import get_session, Session
@@ -58,3 +60,8 @@ def get_post_from_id(
     if not post:
         raise exceptions.HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return post
+
+
+def get_tags_from_names(tags_list: List[models.TagCreate], tags_service: TagsService = Depends()) -> List[orm.Tag]:
+    return [tags_service.get_tag(tag) for tag in tags_list]
+

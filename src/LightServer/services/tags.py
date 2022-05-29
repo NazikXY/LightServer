@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import Depends, exceptions, status
+from fastapi import Depends, exceptions, status, Query
 
 from .. import models
 from LightServer.database.database import get_session
