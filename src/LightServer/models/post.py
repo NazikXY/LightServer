@@ -29,8 +29,3 @@ class Post(BasePost):
     class Config:
         orm_mode = True
 
-
-class Tag(BaseModel):
-    id: int
-    title: str = Field(..., max_length=settings.blog_post_title_length)
-
