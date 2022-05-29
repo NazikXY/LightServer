@@ -21,3 +21,8 @@ from .post import (
     PostCreate,
 )
 
+from .tags import (
+    Tag,
+    TagCreate
+)
+
