@@ -113,3 +113,18 @@ class Post(Base):
     # media_files = Column(ARRAY(str)) This feature will be added later
 
 
+class Tag(Base):
+    __tablename__ = "tags"
+
+    id = Column(Integer, primary_key=True, unique=True, nullable=False)
+    name = Column(String(settings.blog_post_title_length), nullable=False, unique=True)
+
+
+class PostTag(Base):
+    __tablename__ = "post_tags"
+
+    id = Column(Integer, primary_key=True, unique=True, nullable=False)
+    post_id = Column(Integer, ForeignKey(Post.id))
+    post = relationship(Post, foreign_keys=[post_id])
+    tag_id = Column(Integer, ForeignKey(Tag.id))
+    tag = relationship(Tag, foreign_keys=[tag_id])
